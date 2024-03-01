@@ -3,7 +3,7 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(SomaScan.db))
 
 
-raw_df <- readRDS("D:/AZ/proteomics/proc/proteomics")
+raw_df <- readRDS("D:/AZ/CSF_dementia/proc/proteomics")
 
 
 
@@ -15,8 +15,10 @@ df_no_control <- raw_df[raw_df$status == "control",]
 df_no_control <- raw_df[raw_df$status2 == "AZ+" | raw_df$status2 == "control+",]
 
 
+# 1-RID, 7010-7014 are "APGEN1"  "APGEN2"  "apoe"    "status"  "status2" respectively
 colnames(df_no_control)[-c(1,7010:7014)] <- gsub("[.]", "-", gsub("X","", colnames(df_no_control)[-c(1,7010:7014)]))
 
+# Annotation PROBEID -> Symbol
 ss <- select(SomaScan.db, keys = colnames(df_no_control)[-c(1,7010:7014)], columns = c("UNIPROT","SYMBOL"))
 
 ss <- ss %>%
@@ -24,9 +26,9 @@ ss <- ss %>%
   filter(!duplicated(UNIPROT, fromLast=F))
 
 colnames(df_no_control)[-c(1,7010:7014)] <- ss[match(colnames(df_no_control)[-c(1,7010:7014)], ss$PROBEID), "SYMBOL"]
-
-
 df_no_control <- df_no_control[,!is.na(colnames(df_no_control))]
+
+
 
 
 cols_to_remove <- c("RID", "status", "status2", "apoe", "APGEN2", "APGEN1" )
@@ -231,7 +233,7 @@ for(feat in IV_proc$Variable){
 }
 
 
-ggplot(df_no_control, aes(x = status2, y = LRRN1))+
+ggplot(df, aes(x = status2, y = LRRN1))+
   geom_boxplot()
 
 
